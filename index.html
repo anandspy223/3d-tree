@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Virtual Herbal Garden with Multiple Houses and Khonde Tower</title>
+  <title>3D Virtual Herbal Garden with Houses, Tower, and River</title>
   <style>
     body { margin: 0; }
     canvas { display: block; }
@@ -180,4 +180,30 @@
   controls.screenSpacePanning = false;
   controls.maxPolarAngle = Math.PI / 2; // Prevent going below the ground
 
-  //
+  // Set initial camera position
+  camera.position.set(0, 10, 30);
+  controls.update();
+
+  // Animation loop
+  function animate() {
+    requestAnimationFrame(animate);
+
+    controls.update(); // Update camera controls
+
+    renderer.render(scene, camera);
+  }
+
+  animate();
+
+  // Handle window resize
+  // Handle window resize
+  window.addEventListener('resize', onWindowResize, false);
+  function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  }
+</script>
+
+</body>
+</html>
