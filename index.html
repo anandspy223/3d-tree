@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Virtual Herbal Garden with House, River, and Camera Control</title>
+  <title>3D Virtual Herbal Garden with Multiple Houses and Khonde Tower</title>
   <style>
     body { margin: 0; }
     canvas { display: block; }
@@ -13,6 +13,8 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/geometries/TextGeometry.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_regular.typeface.js"></script>
 
 <script>
   // Basic Setup: Scene, Camera, Renderer
@@ -126,8 +128,10 @@
     scene.add(roof);
   }
 
-  // Add a house to the garden
+  // Add multiple houses in different locations
   createHouse(10, 10);
+  createHouse(-15, 5);
+  createHouse(-10, -20);
 
   // River creation
   function createRiver(x, z) {
@@ -142,6 +146,33 @@
   // Add a river to the garden
   createRiver(0, -15);
 
+  // Khonde Tower creation
+  function createTower(x, z) {
+    const towerGeometry = new THREE.CylinderGeometry(1.5, 1.5, 10, 32);
+    const towerMaterial = new THREE.MeshLambertMaterial({ color: 0x808080 });
+    const tower = new THREE.Mesh(towerGeometry, towerMaterial);
+    tower.position.set(x, 5, z); // Center the tower at height 5
+    scene.add(tower);
+
+    // Text label "Khonde Tower"
+    const loader = new THREE.FontLoader();
+    loader.load('https://cdn.jsdelivr.net/npm/three@0.128.0/examples/fonts/helvetiker_regular.typeface.json', function (font) {
+      const textGeometry = new THREE.TextGeometry('Khonde Tower', {
+        font: font,
+        size: 0.8,
+        height: 0.1,
+        curveSegments: 12
+      });
+      const textMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
+      const textMesh = new THREE.Mesh(textGeometry, textMaterial);
+      textMesh.position.set(x - 3.5, 10, z); // Position the text slightly above the tower
+      scene.add(textMesh);
+    });
+  }
+
+  // Add Khonde Tower
+  createTower(20, -10);
+
   // Orbit Controls for 3D navigation
   const controls = new THREE.OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true; // Smooth movement
@@ -149,19 +180,4 @@
   controls.screenSpacePanning = false;
   controls.maxPolarAngle = Math.PI / 2; // Prevent going below the ground
 
-  // Set initial camera position
-  camera.position.set(0, 10, 20);
-  controls.update();
-
-  // Animation loop
-  function animate() {
-    requestAnimationFrame(animate);
-    controls.update(); // Only required when damping is enabled
-    renderer.render(scene, camera);
-  }
-
-  animate();
-</script>
-
-</body>
-</html>
+  //
