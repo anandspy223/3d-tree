@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>3D Virtual Herbal Garden</title>
+  <title>3D Virtual Herbal Garden with House and River</title>
   <style>
     body { margin: 0; }
     canvas { display: block; }
@@ -106,6 +106,40 @@
 
   // Add event listener for mouse move
   window.addEventListener('mousemove', onMouseMove, false);
+
+  // House creation
+  function createHouse(x, z) {
+    // House body (main structure)
+    const houseBodyGeometry = new THREE.BoxGeometry(5, 3, 5);
+    const houseBodyMaterial = new THREE.MeshLambertMaterial({ color: 0x8B0000 });
+    const houseBody = new THREE.Mesh(houseBodyGeometry, houseBodyMaterial);
+    houseBody.position.set(x, 1.5, z);
+    scene.add(houseBody);
+
+    // Roof (pyramid)
+    const roofGeometry = new THREE.ConeGeometry(3.5, 2, 4);
+    const roofMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+    const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+    roof.position.set(x, 4, z);
+    roof.rotation.y = Math.PI / 4; // Rotate to align with the house
+    scene.add(roof);
+  }
+
+  // Add a house to the garden
+  createHouse(10, 10);
+
+  // River creation
+  function createRiver(x, z) {
+    const riverGeometry = new THREE.PlaneGeometry(30, 5);
+    const riverMaterial = new THREE.MeshLambertMaterial({ color: 0x1E90FF, side: THREE.DoubleSide });
+    const river = new THREE.Mesh(riverGeometry, riverMaterial);
+    river.rotation.x = -Math.PI / 2; // Rotate to lie flat
+    river.position.set(x, 0.01, z); // Slightly above ground to avoid z-fighting
+    scene.add(river);
+  }
+
+  // Add a river to the garden
+  createRiver(0, -15);
 
   // Camera Controls (Simple movement)
   let cameraX = 0, cameraZ = 8;
