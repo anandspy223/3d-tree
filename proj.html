@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Virtual Herbal Garden</title>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; }
+  </style>
+</head>
+<body>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<script>
+  // Basic Setup: Scene, Camera, Renderer
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // Light
+  const ambientLight = new THREE.AmbientLight(0x404040, 2); // Soft white light
+  scene.add(ambientLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+  directionalLight.position.set(1, 1, 1).normalize();
+  scene.add(directionalLight);
+
+  // Ground Plane (representing the garden)
+  const groundGeometry = new THREE.PlaneGeometry(100, 100);
+  const groundMaterial = new THREE.MeshLambertMaterial({ color: 0x228B22 }); // Green ground
+  const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+  ground.rotation.x = -Math.PI / 2; // Rotate to lie flat
+  ground.position.y = 0;
+  scene.add(ground);
+
+  // Trees and leaves arrays
+  const trees = [];
+  const leaves = [];
+
+  // Function to create a tree with randomized size and position
+  function createTree(x, z) {
+    // Trunk
+    const trunkHeight = Math.random() * 2 + 1.5; // Random trunk height
+    const trunkGeometry = new THREE.CylinderGeometry(0.2, 0.2, trunkHeight, 32);
+    const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x8B4513 });
+    const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+    trunk.position.set(x, trunkHeight / 2, z); // Center the trunk
+    scene.add(trunk);
+
+    // Leaves
+    const leafCount = Math.floor(Math.random() * 5) + 5; // Random number of leaves
+    for (let i = 0; i < leafCount; i++) {
+      const leafGeometry = new THREE.SphereGeometry(Math.random() * 0.5 + 0.3, 32, 32);
+      const leafMaterial = new THREE.MeshLambertMaterial({ color: 0x32CD32 });
+      const leaf = new THREE.Mesh(leafGeometry, leafMaterial);
+      const randomX = x + Math.sin(i * Math.PI / 3) * (Math.random() * 1.5 + 1);
+      const randomZ = z + Math.cos(i * Math.PI / 3) * (Math.random() * 1.5 + 1);
+      leaf.position.set(randomX, trunkHeight + Math.random() * 1.5, randomZ); // Place above the trunk
+      leaves.push(leaf);
+      scene.add(leaf);
+    }
+
+    // Save the tree
+    trees.push({ trunk, leaves });
+  }
+
+  // Create multiple trees at random positions in the garden
+  for (let i = 0; i < 20; i++) {
+    const x = Math.random() * 50 - 25; // Random position in x-axis
+    const z = Math.random() * 50 - 25; // Random position in z-axis
+    createTree(x, z);
+  }
+
+  // Raycaster for mouse interaction
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+
+  // Animate leaves on hover
+  function animateLeaves(leaf) {
+    leaf.scale.set(1.2, 1.2, 1.2);  // Increase leaf size
+    leaf.rotation.y += 0.05;        // Rotate leaf slightly
+  }
+
+  // Event listener for mouse movement
+  function onMouseMove(event) {
+    // Convert mouse position to normalized device coordinates
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Update the raycaster with the camera and mouse position
+    raycaster.setFromCamera(mouse, camera);
+
+    // Check for intersections
+    const intersects = raycaster.intersectObjects(leaves);
+    for (let i = 0; i < leaves.length; i++) {
+      leaves[i].scale.set(1, 1, 1); // Reset leaf scale when not hovered
+    }
+    if (intersects.length > 0) {
+      animateLeaves(intersects[0].object);
+    }
+  }
+
+  // Add event listener for mouse move
+  window.addEventListener('mousemove', onMouseMove, false);
+
+  // Camera Controls (Simple movement)
+  let cameraX = 0, cameraZ = 8;
+  window.addEventListener('keydown', (event) => {
+    switch (event.key) {
+      case 'ArrowUp':
+        cameraZ -= 1; break;
+      case 'ArrowDown':
+        cameraZ += 1; break;
+      case 'ArrowLeft':
+        cameraX -= 1; break;
+      case 'ArrowRight':
+        cameraX += 1; break;
+    }
+    camera.position.set(cameraX, 5, cameraZ);
+    camera.lookAt(0, 0, 0);
+  });
+
+  // Set initial camera position
+  camera.position.set(cameraX, 5, cameraZ);
+  camera.lookAt(0, 0, 0);
+
+  // Animation loop
+  function animate() {
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+  }
+
+  animate();
+</script>
+
+</body>
+</html>
